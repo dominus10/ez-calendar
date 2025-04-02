@@ -1,15 +1,13 @@
-"use strict";
-// export {}
-// declare global {
-//   interface HTMLElementTagNameMap {
-//     "ez-calendar": Calendar;
-//   }
-//   namespace JSX {
-//     interface IntrinsicElements {
-//       "ez-calendar": { type?: ButtonMode; class?: string };
-//     }
-//   }
-// }
+// function to handle different dev environment
+const handleEnvironment = (svgFile) => {
+    if (typeof import.meta !== "undefined" && import.meta.url) {
+        // When running in a module system (like Vite or Webpack)
+        return new URL(svgFile, import.meta.url).href;
+    }
+    else {
+        return svgFile;
+    }
+};
 const DateSelectorFactory = (() => {
     class DateSelector extends HTMLElement {
         constructor() {
@@ -112,7 +110,7 @@ const DateSelectorFactory = (() => {
             this.previousMonthButton.style.width = "2rem";
             this.previousMonthButton.style.border = "0";
             this.previousMonthButton.style.background = "transparent";
-            fetch("./left.svg")
+            fetch(handleEnvironment("./left.svg"))
                 .then((response) => response.text())
                 .then((svgContent) => {
                 const svgElement = new DOMParser().parseFromString(svgContent, "image/svg+xml").documentElement;
@@ -135,7 +133,7 @@ const DateSelectorFactory = (() => {
             this.nextMonthButton.style.width = "2rem";
             this.nextMonthButton.style.border = "0";
             this.nextMonthButton.style.background = "transparent";
-            fetch("./right.svg")
+            fetch(handleEnvironment("./right.svg"))
                 .then((response) => response.text())
                 .then((svgContent) => {
                 const svgElement = new DOMParser().parseFromString(svgContent, "image/svg+xml").documentElement;
@@ -275,7 +273,10 @@ class Calendar extends HTMLElement {
         super();
         this.type = "button"; // Default value
         this.modalState = false;
+        this.baseContainer = document.createElement("div");
         this.button = document.createElement("button");
+        this.modal = document.createElement("div");
+        this.dateSelector = document.createElement("div");
         // Read attributes from HTML
         this.type = this.getAttribute("type") || "button";
         // Date Selector
@@ -301,15 +302,14 @@ class Calendar extends HTMLElement {
             this.toggleModal(e);
         });
         this.dateSelector.appendChild(dateSelectorElement);
-        // Create shadow DOM (Use open for debugging)
         // Button
         this.button.style.width = "48px";
         this.button.style.height = "48px";
         this.button.style.border = "none";
-        const dataClass = this.getAttribute("data-buttonClass");
+        this.button.style.cursor = "pointer";
+        const dataClass = this.getAttribute("data-buttonclass");
         this.button.className = dataClass;
         // Modal (Popup)
-        this.modal = document.createElement("div");
         this.modal.style.display = "none";
         this.modal.style.position = "absolute";
         this.modal.style.top = "0";
@@ -323,7 +323,7 @@ class Calendar extends HTMLElement {
         this.modal.appendChild(this.dateSelector);
         // Close Button inside Modal
         const closeButton = document.createElement("button");
-        fetch("./close.svg")
+        fetch(handleEnvironment("./close.svg"))
             .then((response) => response.text())
             .then((svgContent) => {
             const svgElement = new DOMParser().parseFromString(svgContent, "image/svg+xml").documentElement;
@@ -352,7 +352,7 @@ class Calendar extends HTMLElement {
         });
         // Fetch and insert SVG
         if (this.type === "button") {
-            fetch("./calendar.svg")
+            fetch(handleEnvironment("./calendar.svg"))
                 .then((response) => response.text())
                 .then((svgContent) => {
                 const svgElement = new DOMParser().parseFromString(svgContent, "image/svg+xml").documentElement;
@@ -361,9 +361,15 @@ class Calendar extends HTMLElement {
                 this.button.appendChild(svgElement);
             })
                 .catch(console.error);
-            this.appendChild(this.button);
-            this.appendChild(this.modal);
+            this.baseContainer.appendChild(this.button);
+            this.baseContainer.appendChild(this.modal);
         }
+    }
+    connectedCallback() {
+        this.appendChild(this.baseContainer);
+    }
+    createRenderRoot() {
+        return this;
     }
     // Function to toggle modal
     toggleModal(e) {
@@ -384,4 +390,7 @@ class Calendar extends HTMLElement {
     }
 }
 // Register the custom element
-customElements.define("ez-datepicker", Calendar);
+if (!customElements.get("ez-calendar")) {
+    customElements.define("ez-calendar", Calendar);
+}
+export {};

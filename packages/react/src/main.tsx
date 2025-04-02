@@ -1,10 +1,10 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { EZCalendar } from "./EZCalendar.tsx";
+import "./index.css";
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <EZCalendar data-buttonClass="bg-teal-300 ring-1 ring-green-500 flex justify-center items-center rounded-[50%]" />
   </StrictMode>,
-)
+);

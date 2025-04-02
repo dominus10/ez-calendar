@@ -14,7 +14,7 @@ printf "Remove unminified release.. "
 rm ./dist/index.js
 echo -e "${CYAN}OK${NC}"
 printf "Copying all svg dependencies.. "
-cp ./src/*.svg ./dist/
+cp ./src/*.svg ./dist/src/
 echo -e "${CYAN}OK${NC}"
 printf "Gzipping.. "
 gzip -k ./dist/index.min.js

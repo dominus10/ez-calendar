@@ -1,17 +1,14 @@
-// export {}
-
 type ButtonMode = "input" | "button";
 
-// declare global {
-//   interface HTMLElementTagNameMap {
-//     "ez-calendar": Calendar;
-//   }
-//   namespace JSX {
-//     interface IntrinsicElements {
-//       "ez-calendar": { type?: ButtonMode; class?: string };
-//     }
-//   }
-// }
+// function to handle different dev environment
+const handleEnvironment = (svgFile: string) => {
+  if (typeof import.meta !== "undefined" && import.meta.url) {
+    // When running in a module system (like Vite or Webpack)
+    return new URL(svgFile, import.meta.url).href;
+  } else {
+    return svgFile;
+  }
+};
 
 const DateSelectorFactory = (() => {
   class DateSelector extends HTMLElement {
@@ -26,6 +23,7 @@ const DateSelectorFactory = (() => {
 
     constructor() {
       super();
+
       this.shadow = this.attachShadow({ mode: "open" });
       this.selectedDate = new Date();
 
@@ -139,7 +137,7 @@ const DateSelectorFactory = (() => {
       this.previousMonthButton.style.border = "0";
       this.previousMonthButton.style.background = "transparent";
 
-      fetch("./left.svg")
+      fetch(handleEnvironment("./left.svg"))
         .then((response) => response.text())
         .then((svgContent) => {
           const svgElement = new DOMParser().parseFromString(
@@ -166,7 +164,7 @@ const DateSelectorFactory = (() => {
       this.nextMonthButton.style.width = "2rem";
       this.nextMonthButton.style.border = "0";
       this.nextMonthButton.style.background = "transparent";
-      fetch("./right.svg")
+      fetch(handleEnvironment("./right.svg"))
         .then((response) => response.text())
         .then((svgContent) => {
           const svgElement = new DOMParser().parseFromString(
@@ -337,8 +335,6 @@ const DateSelectorFactory = (() => {
 class Calendar extends HTMLElement {
   type: ButtonMode = "button"; // Default value
   modalState: boolean = false;
-  modal: HTMLDivElement;
-  dateSelector: HTMLDivElement;
 
   constructor() {
     super();
@@ -371,17 +367,17 @@ class Calendar extends HTMLElement {
     });
     this.dateSelector.appendChild(dateSelectorElement);
 
-    // Create shadow DOM (Use open for debugging)
-
     // Button
     this.button.style.width = "48px";
     this.button.style.height = "48px";
     this.button.style.border = "none";
-    const dataClass = this.getAttribute("data-buttonClass");
-    this.button.className = dataClass!;
+    this.button.style.cursor = "pointer";
+    let dataClass = this.getAttribute("data-buttonClass");
+    if (dataClass) {
+      this.button.className = dataClass!;
+    }
 
     // Modal (Popup)
-    this.modal = document.createElement("div");
     this.modal.style.display = "none";
     this.modal.style.position = "absolute";
     this.modal.style.top = "0";
@@ -396,7 +392,7 @@ class Calendar extends HTMLElement {
 
     // Close Button inside Modal
     const closeButton = document.createElement("button");
-    fetch("./close.svg")
+    fetch(handleEnvironment("./close.svg"))
       .then((response) => response.text())
       .then((svgContent) => {
         const svgElement = new DOMParser().parseFromString(
@@ -432,7 +428,7 @@ class Calendar extends HTMLElement {
 
     // Fetch and insert SVG
     if (this.type === "button") {
-      fetch("./calendar.svg")
+      fetch(handleEnvironment("./calendar.svg"))
         .then((response) => response.text())
         .then((svgContent) => {
           const svgElement = new DOMParser().parseFromString(
@@ -445,12 +441,27 @@ class Calendar extends HTMLElement {
         })
         .catch(console.error);
 
-      this.appendChild(this.button);
-      this.appendChild(this.modal);
+      this.baseContainer.appendChild(this.button);
+      this.baseContainer.appendChild(this.modal);
     }
   }
 
+  connectedCallback() {
+    this.appendChild(this.baseContainer);
+    let buttonClassList = this.getAttribute("data-buttonClass");
+    if(buttonClassList) {
+      this.button.className = buttonClassList;
+    }
+  }
+
+  createRenderRoot() {
+    return this;
+  }
+
+  baseContainer = document.createElement("div");
   button = document.createElement("button");
+  modal = document.createElement("div");
+  dateSelector = document.createElement("div");
 
   // Function to toggle modal
   toggleModal(
@@ -475,4 +486,6 @@ class Calendar extends HTMLElement {
 }
 
 // Register the custom element
-customElements.define("ez-datepicker", Calendar);
+if (!customElements.get("ez-calendar")) {
+  customElements.define("ez-calendar", Calendar);
+}

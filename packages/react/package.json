@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ez-calendar/core": "link:../../src",
+    "@tailwindcss/vite": "^4.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@ez-calendar/core": "link:../../src"
+    "tailwindcss": "^4.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

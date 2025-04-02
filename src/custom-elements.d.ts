@@ -1,5 +1,3 @@
-import * as React from "react";
-
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -8,5 +6,8 @@ declare global {
         HTMLElement
       >;
     }
+  }
+  interface HTMLElement {
+    connectedCallback(): void;
   }
 }

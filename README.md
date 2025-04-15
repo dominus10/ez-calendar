@@ -14,7 +14,7 @@ EZCalendar is a lightweight, customizable date picker fully typed in Typescript 
     - Tailwind ✅
     - Bootstrap 🚧
     - Bulma 🚧
-    React wrapper : ✅
+    React wrapper : 🚧
     Vue wrapper: ❌ (not implemented yet)
     Svelte wrapper: ❌ (not implemented yet)
 

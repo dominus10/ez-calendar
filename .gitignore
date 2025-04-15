@@ -5,5 +5,11 @@
 # Ignore all "node_modules" directories anywhere in the project
 node_modules/
 
+# Ignore all "dist" directories anywhere in the project
 dist/
-packages/react/
+dist/src/
+
+# Ignore packages for smaller code push
+packages/
+
+pnpm-workspace.yaml
